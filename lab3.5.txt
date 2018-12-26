@@ -1,0 +1,19 @@
+mport java.time.LocalDate;
+import java.util.Scanner;
+
+public class Warranty {
+public static void main(String[] args) {
+	String in=new String();
+	String out=new String();
+	Scanner s=new Scanner(System.in);
+	System.out.println("Date");
+	in=s.nextLine();
+	LocalDate pd=LocalDate.parse(in);
+System.out.println("enter months for warantee date");
+int months=s.nextInt();
+System.out.println("enter years for warantee date");
+int year=s.nextInt();
+LocalDate expiredDate=pd.plusYears(year).plusMonths(months);
+System.out.println(expiredDate);
+}
+}

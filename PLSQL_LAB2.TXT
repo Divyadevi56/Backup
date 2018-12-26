@@ -1,0 +1,95 @@
+SQL> ED
+Wrote file afiedt.buf
+
+  1  DECLARE
+  2      V_BONUS V_SAL%TYPE;
+  3      V_SAL STAFF_MASTER.STAFF_SAL%TYPE;
+  4      BEGIN
+  5      SELECT STAFF_SAL INTO V_SAL
+  6      FROM STAFF_MASTER
+  7      WHERE MGR_CODE=100006;
+  8     V_BONUS:=2*V_SAL;
+  9     DBMS_OUTPUT.PUT_LINE('STAFF SALARY IS ' || V_SAL);
+ 10     DBMS_OUTPUT.PUT_LINE('STAFF BONUS IS ' || V_BONUS);
+ 11     EXCEPTION
+ 12     WHEN NO_DATA_FOUND THEN
+ 13     DBMS_OUTPUT.PUT_LINE('GIVEN CODE IS NOT VALID.ENTER VALID CODE');
+ 14*    END;
+ 15  /
+    V_BONUS V_SAL%TYPE;
+            *
+ERROR at line 2:
+ORA-06550: line 2, column 13: 
+PLS-00320: the declaration of the type of this expression is incomplete or malformed 
+ORA-06550: line 2, column 13: 
+PL/SQL: Item ignored 
+ORA-06550: line 8, column 4: 
+PLS-00320: the declaration of the type of this expression is incomplete or malformed 
+ORA-06550: line 8, column 4: 
+PL/SQL: Statement ignored 
+ORA-06550: line 10, column 46: 
+PLS-00320: the declaration of the type of this expression is incomplete or malformed 
+ORA-06550: line 10, column 4: 
+PL/SQL: Statement ignored 
+
+
+SQL> ED
+Wrote file afiedt.buf
+
+  1  DECLARE
+  2      V_BONUS STAFF_MASTER.STAFF_SAL%TYPE;
+  3     V_SAL STAFF_MASTER.STAFF_SAL%TYPE;
+  4  BEGIN
+  5    FOR C IN(SELECT STAFF_SAL INTO V_SAL FROM STAFF_MASTER  WHERE MGR_CODE=100006)
+  6  LOOP
+  7     V_SAL:=C.STAFF_SAL;
+  8     V_BONUS:=2*V_SAL;
+  9     DBMS_OUTPUT.PUT_LINE('STAFF SALARY IS ' || V_SAL);
+ 10     DBMS_OUTPUT.PUT_LINE('STAFF BONUS IS ' || V_BONUS);
+ 11  END LOOP;
+ 12  EXCEPTION
+ 13      WHEN NO_DATA_FOUND THEN
+ 14      DBMS_OUTPUT.PUT_LINE('GIVEN CODE IS NOT VALID.ENTER VALID CODE');
+ 15* END;
+SQL> /
+STAFF SALARY IS 17000                                                                                                                                                                                   
+STAFF BONUS IS 34000                                                                                                                                                                                    
+STAFF SALARY IS 24000                                                                                                                                                                                   
+STAFF BONUS IS 48000                                                                                                                                                                                    
+STAFF SALARY IS 20000                                                                                                                                                                                   
+STAFF BONUS IS 40000                                                                                                                                                                                    
+STAFF SALARY IS 18000                                                                                                                                                                                   
+STAFF BONUS IS 36000                                                                                                                                                                                    
+STAFF SALARY IS 22000                                                                                                                                                                                   
+STAFF BONUS IS 44000                                                                                                                                                                                    
+
+PL/SQL procedure successfully completed.
+
+SQL> ED
+Wrote file afiedt.buf
+
+  1  DECLARE
+  2      V_EMPNO EMP.EMPNO%TYPE;
+  3      V_COMM EMP.COMM%TYPE;
+  4      EXC EXCEPTION;
+  5  BEGIN
+  6     V_EMPNO:='&V_EMPNO';
+  7  SELECT COMM INTO V_COMM FROM EMP WHERE EMPNO=V_EMPNO;
+  8  IF V_COMM IS NULL THEN RAISE EXC;
+  9  ELSE
+ 10      DBMS_OUTPUT.PUT_LINE('EMPLOYEE NUMBER: '||V_EMPNO);
+ 11      DBMS_OUTPUT.PUT_LINE('COMM: '||V_COMM);
+ 12  END IF;
+ 13  EXCEPTION
+ 14     WHEN EXC THEN 
+ 15     DBMS_OUTPUT.PUT_LINE('ERROR, COMMISSION IS NULL');
+ 16* END;
+ 17  /
+Enter value for v_empno: 7369
+old   6:    V_EMPNO:='&V_EMPNO';
+new   6:    V_EMPNO:='7369';
+ERROR, COMMISSION IS NULL                                                                                                                                                                               
+
+PL/SQL procedure successfully completed.
+
+SQL> SPOOL OFF

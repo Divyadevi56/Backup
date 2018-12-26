@@ -1,0 +1,179 @@
+SQL> ed
+Wrote file afiedt.buf
+
+  1  CREATE OR REPLACE FUNCTION AGE_dob(d_dob date)
+  2                      return number AS a number;
+  3  BEGIN
+  4      a:=round(MONTHS_BETWEEN(SYSDATE,D_DOB)/12);
+  5            return a;
+  6*    END AGE_dob;
+  7  /
+
+Function created.
+
+SQL> ed
+Wrote file afiedt.buf
+
+  1  DECLARE
+  2          yrs NUMBER;
+  3  BEGIN
+  4      yrs:=AGE_dob('&d_dob');
+  5      DBMS_OUTPUT.PUT_LINE(yrs);
+  6* END;
+SQL> /
+Enter value for d_dob: 07-OCT-1996
+old   4:     yrs:=AGE_dob('&d_dob');
+new   4:     yrs:=AGE_dob('07-OCT-1996');
+22
+
+PL/SQL procedure successfully completed.
+
+SQL> ed
+Wrote file afiedt.buf
+
+  1  CREATE or REPLACE PROCEDURE staff_demo
+  2  as
+  3  staff_cod staff_master.staff_code%TYPE;
+  4  staff_names staff_master.staff_name%TYPE;
+  5  dept_codes staff_master.dept_code%TYPE;
+  6  mgr_name staff_master.staff_name%TYPE;
+  7  mgr_code staff_master.staff_code%TYPE;
+  8  BEGIN
+  9  FOR N IN (SELECT a.staff_code,a.staff_name,a.dept_code,b.staff_name as mgr_code
+ 10     from staff_master a,staff_master b
+ 11     where b.staff_code=a.mgr_code order by a.staff_code)
+ 12  LOOP
+ 13  staff_cod:=N.staff_code;
+ 14  staff_names:=N.staff_name;
+ 15  dept_codes:=N.dept_code;
+ 16  mgr_name:=N.mgr_code;
+ 17  dbms_output.put_line('Staff Code is '||staff_cod||',Staff Name is '||staff_names||',Department Code is '||dept_codes||',Manager Name is '||mgr_name);
+ 18  END LOOP;
+ 19* END;
+SQL> /
+
+Procedure created.
+
+SQL> execute staff_demo
+Staff Code is 100001,Staff Name is Arvind,Department Code is 30,Manager Name is Allen
+Staff Code is 100002,Staff Name is Shyam,Department Code is 20,Manager Name is Smith
+Staff Code is 100003,Staff Name is Mohan,Department Code is 10,Manager Name is Allen
+Staff Code is 100004,Staff Name is Anil,Department Code is 20,Manager Name is Allen
+Staff Code is 100005,Staff Name is John,Department Code is 10,Manager Name is Smith
+Staff Code is 100006,Staff Name is Allen,Department Code is 30,Manager Name is John
+Staff Code is 100007,Staff Name is Smith,Department Code is 20,Manager Name is John
+Staff Code is 100008,Staff Name is Raviraj,Department Code is 40,Manager Name is Allen
+Staff Code is 100009,Staff Name is Rahul,Department Code is 20,Manager Name is Allen
+Staff Code is 100010,Staff Name is Ram,Department Code is 30,Manager Name is Smith
+
+PL/SQL procedure successfully completed.
+
+SQL> ed
+Wrote file afiedt.buf
+
+  1  create or replace function CostToComp(code in number) return number
+  2  is
+  3      sal staff_master.staff_sal%type;
+  4      exp number;
+  5  BEGIN
+  6      select staff_sal,round(months_between(sysdate,hiredate)/12) as EXP into sal, exp from staff_master where staff_code=code;
+  7      if exp>4 then
+  8      sal:=sal+ (0.3*sal)+(0.15*sal)+(0.2*sal)+(0.08*sal);
+  9      elsif exp between 2 and 4 then
+ 10      sal:=sal+ (0.2*sal)+(0.15*sal)+(0.2*sal)+(0.08*sal);
+ 11      elsif exp between 1 and 2 then
+ 12      sal:=sal+ (0.1*sal)+(0.15*sal)+(0.2*sal)+(0.08*sal);
+ 13      else
+ 14      sal:=sal+(0.15*sal)+(0.2*sal)+(0.08*sal);
+ 15      end if;
+ 16      return sal;
+ 17* end;
+
+SQL> ed
+Wrote file afiedt.buf
+
+  1  DECLARE
+  2      CALC_SAL NUMBER;
+  3  BEGIN
+  4      CALC_SAL:=CostToComp(&staff_code);
+  5      dbms_output.put_line(CALC_SAL);
+  6* END;
+SQL> /
+Enter value for staff_code: 100006
+old   4:     CALC_SAL:=CostToComp(&staff_code);
+new   4:     CALC_SAL:=CostToComp(100006);
+72660
+
+PL/SQL procedure successfully completed.
+
+SQL> ed
+Wrote file afiedt.buf
+
+  1  create or replace procedure upd_sal
+  2  as
+  3  staff_c staff_master.staff_code%type;
+  4  hire_d staff_master.hiredate%type;
+  5  sal staff_master.staff_sal%type;
+  6  begin
+  7  for info in (select staff_code,staff_sal,hiredate into staff_c,sal,hire_d from staff_master where staff_code=&staff_code)
+  8  loop
+  9  staff_c:=info.staff_code;
+ 10  hire_d:=info.hiredate;
+ 11  sal:=info.staff_sal;
+ 12  dbms_output.put_line(hire_d);
+ 13  if(((sysdate-hire_d)/365)>5) then
+ 14  sal:=sal+0.25*sal;
+ 15  dbms_output.put_line('Salary is '||sal);
+ 16  elsif (((sysdate-hire_d)/365)>2) and (((sysdate-hire_d)/365)<5) then
+ 17  sal:=sal+0.20*sal;
+ 18  dbms_output.put_line('Salary is '||sal);
+ 19  elsif (((sysdate-hire_d)/365)<2) then
+ 20  dbms_output.put_line('Salary is '||sal);
+ 21  else
+ 22  dbms_output.put_line('Staff not eligible for hike');
+ 23  end if;
+ 24  end loop;
+ 25* end;
+SQL> /
+Enter value for staff_code: 100006
+old   7: for info in (select staff_code,staff_sal,hiredate into staff_c,sal,hire_d from staff_master where staff_code=&staff_code)
+new   7: for info in (select staff_code,staff_sal,hiredate into staff_c,sal,hire_d from staff_master where staff_code=100006)
+
+Procedure created.
+
+SQL> execute upd_sal;
+23-APR-01
+Salary is 52500
+
+PL/SQL procedure successfully completed.
+
+
+SQL> select * from staff_master;
+
+STAFF_CODE STAFF_NAME                                         DESIGN_CODE  DEPT_CODE STAFF_DOB HIREDATE    MGR_CODE  STAFF_SAL STAFF_ADDRESS
+---------- -------------------------------------------------- ----------- ---------- --------- --------- ---------- ---------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    100001 Arvind                                                     102         30 15-JAN-80 15-JAN-03     100006
+ 17000 Bangalore
+    100002 Shyam                                                      102         20 18-FEB-80 17-FEB-02     100007
+ 20000 Chennai
+    100003 Mohan                                                      102         10 23-MAR-80 19-JAN-02     100006
+ 24000 Mumbai
+    100004 Anil                                                       102         20 22-APR-77 11-MAR-01     100006
+ 20000 Hyderabad
+    100005 John                                                       106         10 22-MAY-76 21-JAN-01     100007
+ 32000 Bangalore
+    100006 Allen                                                      103         30 22-JAN-80 23-APR-01     100005
+ 42000 Chennai
+    100007 Smith                                                      103         20 19-JUL-73 12-MAR-02     100005
+ 62000 Mumbai
+    100008 Raviraj                                                    102         40 17-JUN-80 11-JAN-03     100006
+ 18000 Bangalore
+    100009 Rahul                                                      102         20 16-JAN-78 11-DEC-03     100006
+ 22000 Hyderabad
+    100010 Ram                                                        103         30 17-JAN-79 17-JAN-02     100007
+ 32000 Bangalore
+
+10 rows selected.
+
+
+SQL> spool off

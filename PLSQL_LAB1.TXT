@@ -1,0 +1,160 @@
+SQL> ED
+Wrote file afiedt.buf
+
+  1  DECLARE
+  2  V_Sample1 NUMBER(2);
+  3  V_Sample2 CONSTANT NUMBER(2) ;
+  4  V_Sample3 NUMBER(2) NOT NULL ;
+  5  V_Sample4 NUMBER(2) := 50;
+  6* V_Sample5 NUMBER(2) DEFAULT 25;
+SQL> /
+V_Sample5 NUMBER(2) DEFAULT 25;
+                              *
+ERROR at line 6:
+ORA-06550: line 6, column 31:
+PLS-00103: Encountered the symbol "end-of-file" when expecting one of the following:
+begin function package pragma procedure subtype type use
+<an identifier> <a double-quoted delimited-identifier> form
+current cursor
+
+SQL> ED
+Wrote file afiedt.buf
+
+  1  DECLARE 
+  2  V_Sample1 NUMBER(2);
+  3   V_Sample2 CONSTANT NUMBER(2); 
+  4  V_Sample3 NUMBER(2) NOT NULL ; 
+  5  V_Sample4 NUMBER(2) := 50; 
+  6  V_Sample5 NUMBER(2) DEFAULT 25; 
+  7  BEGIN
+  8  DBMS_OUTPUT.PUT_LINE('HELLO');
+  9* END;
+SQL> /
+ V_Sample2 CONSTANT NUMBER(2); 
+ *
+ERROR at line 3:
+ORA-06550: line 3, column 2: 
+PLS-00322: declaration of a constant 'V_SAMPLE2' must contain an initialization assignment 
+ORA-06550: line 3, column 12: 
+PL/SQL: Item ignored 
+ORA-06550: line 4, column 11: 
+PLS-00218: a variable declared NOT NULL must have an initialization assignment 
+
+
+SQL> ED
+Wrote file afiedt.buf
+
+  1  DECLARE 
+  2  V_Sample1 NUMBER(2);
+  3   V_Sample2 CONSTANT NUMBER(2) := 10; 
+  4  V_Sample3 NUMBER(2) NOT NULL :=2 ; 
+  5  V_Sample4 NUMBER(2) := 50; 
+  6  V_Sample5 NUMBER(2) DEFAULT 25; 
+  7  BEGIN
+  8  DBMS_OUTPUT.PUT_LINE('HELLO');
+  9* END;
+SQL> /
+HELLO                                                                                                                                                                                                   
+
+PL/SQL procedure successfully completed.
+
+
+SQL> ED
+Wrote file afiedt.buf
+
+  1  <<OUTER_BLOCK>>
+  2  DECLARE --outer block
+  3    var_num1 NUMBER := 5;
+  4  BEGIN
+  5  DECLARE --inner block
+  6    var_num1 NUMBER := 10;
+  7  BEGIN
+  8    DBMS_OUTPUT.PUT_LINE('Value for var_num1:' ||var_num1);
+  9    --Can outer block variable (var_num1) be printed here.IfYes,Print the same.
+ 10    DBMS_OUTPUT.PUT_LINE('Value for OUTER BLOCK var_num1:' ||OUTER_BLOCK.var_num1);
+ 11  END;
+ 12    --Can inner block variable(var_num1)  be printed here.IfYes,Print the same.
+ 13* END;
+SQL> /
+Value for var_num1:10                                                                                                                                                                                   
+Value for OUTER BLOCK var_num1:5                                                                                                                                                                        
+
+PL/SQL procedure successfully completed.
+
+SQL> ED
+Wrote file afiedt.buf
+
+  1  DECLARE
+  2      V_EMPNO EMP.EMPNO%TYPE;
+  3      V_EMPNAME EMP.ENAME%TYPE;
+  4      V_EMPJOB EMP.JOB%TYPE;
+  5      V_EMPMGR EMP.MGR%TYPE;
+  6      V_EMPHIREDATE EMP.HIREDATE%TYPE;
+  7      V_EMPSAL EMP.SAL%TYPE;
+  8      V_EMPCOMM EMP.COMM%TYPE;
+  9      V_EMPDEPTNO EMP.DEPTNO%TYPE;
+ 10  BEGIN
+ 11     SELECT * INTO V_EMPNO,V_EMPNAME,V_EMPJOB,V_EMPMGR,V_EMPHIREDATE,V_EMPSAL,V_EMPCOMM,V_EMPDEPTNO FROM EMP WHERE EMPNO=7369;
+ 12    DBMS_OUTPUT.PUT_LINE('EMPLOYEE NUMBER:' ||V_EMPNO);
+ 13     DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME:' ||V_EMPNAME);
+ 14     DBMS_OUTPUT.PUT_LINE('EMPLOYEE JOB:' ||V_EMPJOB);
+ 15     DBMS_OUTPUT.PUT_LINE('EMPLOYEE MANAGER:' ||V_EMPMGR);
+ 16      DBMS_OUTPUT.PUT_LINE('EMPLOYEE HIREDATE:' ||V_EMPHIREDATE);
+ 17     DBMS_OUTPUT.PUT_LINE('EMPLOYEE SALARY:' ||V_EMPSAL);
+ 18     DBMS_OUTPUT.PUT_LINE('EMPLOYEE COMMISSION:' ||V_EMPCOMM);
+ 19     DBMS_OUTPUT.PUT_LINE('EMPLOYEE DEPTNO:' ||V_EMPDEPTNO);
+ 20* END;
+SQL> /
+EMPLOYEE NUMBER:7369                                                                                                                                                                                    
+EMPLOYEE NAME:SMITH                                                                                                                                                                                     
+EMPLOYEE JOB:CLERK                                                                                                                                                                                      
+EMPLOYEE MANAGER:7902                                                                                                                                                                                   
+EMPLOYEE HIREDATE:17-DEC-80                                                                                                                                                                             
+EMPLOYEE SALARY:800                                                                                                                                                                                     
+EMPLOYEE COMMISSION:                                                                                                                                                                                    
+EMPLOYEE DEPTNO:20                                                                                                                                                                                      
+
+PL/SQL procedure successfully completed.
+
+SQL> ED
+Wrote file afiedt.buf
+
+  1  DECLARE
+  2      V_EMPNO EMP.EMPNO%TYPE;
+  3      V_ENAME EMP.ENAME%TYPE;
+  4      V_JOB EMP.JOB%TYPE;
+  5      V_MGR EMP.MGR%TYPE;
+  6      V_HIREDATE EMP.HIREDATE%TYPE;
+  7      V_SAL EMP.SAL%TYPE;
+  8      V_COMM EMP.COMM%TYPE;
+  9      V_DEPTNO EMP.DEPTNO%TYPE;
+ 10     V_DEPT_NAME DEPARTMENT_MASTER.DEPT_NAME%TYPE;
+ 11     V_DEPT_CODE DEPARTMENT_MASTER.DEPT_CODE%TYPE;
+ 12  BEGIN
+ 13     V_ENAME:='&V_ENAME';
+ 14     SELECT EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPT_NAME INTO V_EMPNO,V_ENAME,V_JOB,V_MGR,V_HIREDATE,V_SAL,V_COMM,V_DEPT_NAME FROM EMP,DEPARTMENT_MASTER WHERE ENAME=V_ENAME AND DEPTNO=DEPT_CODE;
+ 15    DBMS_OUTPUT.PUT_LINE('EMPLOYEE NUMBER; '||V_EMPNO);
+ 16    DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME: '||V_ENAME);
+ 17    DBMS_OUTPUT.PUT_LINE('EMPLOYEE JOB: '||V_JOB);
+ 18    DBMS_OUTPUT.PUT_LINE('EMPLOYEE MANAGER: '||V_MGR);
+ 19    DBMS_OUTPUT.PUT_LINE('EMPLOYEE HIREDATE: '||V_HIREDATE);
+ 20    DBMS_OUTPUT.PUT_LINE('EMPLOYEE SALARY: '||V_SAL);
+ 21    DBMS_OUTPUT.PUT_LINE('EMPLOYEE  COMMISSION: '||V_COMM);
+ 22    DBMS_OUTPUT.PUT_LINE('EMPLOYEE DEPT_NAME: '||V_DEPT_NAME);
+ 23* END;
+SQL> /
+Enter value for v_ename: SMITH
+old  13:    V_ENAME:='&V_ENAME';
+new  13:    V_ENAME:='SMITH';
+EMPLOYEE NUMBER; 7369                                                                                                                                                                                   
+EMPLOYEE NAME: SMITH                                                                                                                                                                                    
+EMPLOYEE JOB: CLERK                                                                                                                                                                                     
+EMPLOYEE MANAGER: 7902                                                                                                                                                                                  
+EMPLOYEE HIREDATE: 17-DEC-80                                                                                                                                                                            
+EMPLOYEE SALARY: 800                                                                                                                                                                                    
+EMPLOYEE  COMMISSION:                                                                                                                                                                                   
+EMPLOYEE DEPT_NAME: Electricals                                                                                                                                                                         
+
+PL/SQL procedure successfully completed.
+
+SQL> SPOOL OFF
